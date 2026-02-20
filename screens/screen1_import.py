@@ -65,7 +65,27 @@ def render():
             if fname.endswith(".csv"):
                 df = pd.read_csv(tmp_path)
             elif fname.endswith((".xlsx", ".xls")):
-                df = pd.read_excel(tmp_path)
+                # Read all sheet names first
+                xls = pd.ExcelFile(tmp_path)
+                sheet_names = xls.sheet_names
+
+                if len(sheet_names) > 1:
+                    selected_sheet = st.selectbox(
+                        "📑 Select Sheet", sheet_names,
+                        help=f"This file has {len(sheet_names)} sheets",
+                    )
+                else:
+                    selected_sheet = sheet_names[0]
+
+                df = pd.read_excel(tmp_path, sheet_name=selected_sheet, header=0)
+
+                # If the result looks like only 1-2 columns, try without header
+                if df.shape[1] <= 2 and len(xls.parse(selected_sheet, header=None)) > 0:
+                    df_no_header = pd.read_excel(tmp_path, sheet_name=selected_sheet, header=None)
+                    if df_no_header.shape[1] > df.shape[1]:
+                        df = df_no_header
+                        df.columns = [f"Column_{i+1}" for i in range(df.shape[1])]
+
             elif fname.endswith(".pdf"):
                 # Extract tables from PDF
                 tables = []
@@ -100,7 +120,8 @@ def render():
     df = st.session_state.get("raw_data")
     if df is not None:
         with st.expander("📄 Data Preview", expanded=True):
-            st.dataframe(df.head(20), use_container_width=True)
+            st.dataframe(df.head(50), use_container_width=True)
+            st.caption(f"Showing first 50 of {df.shape[0]} rows × {df.shape[1]} columns")
 
         with st.expander("📊 Data Summary"):
             st.markdown(st.session_state.get("data_summary", ""))
