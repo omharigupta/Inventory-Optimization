@@ -1,0 +1,14 @@
+streamlit
+crewai
+crewai-tools
+google-genai
+openai
+chromadb
+pandas
+openpyxl
+pdfplumber
+python-dotenv
+plotly
+scikit-learn
+fpdf2
+numpy
