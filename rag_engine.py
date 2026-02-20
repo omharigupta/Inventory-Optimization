@@ -17,8 +17,9 @@ class RAGChatEngine:
         if provider == "gemini":
             os.environ["GEMINI_API_KEY"] = api_key
             self.llm = LLM(
-                model="gemini/gemini-2.5-flash-preview-05-20",
+                model="gemini-2.5-flash",
                 api_key=api_key,
+                base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
             )
         else:
             os.environ["OPENAI_API_KEY"] = api_key
